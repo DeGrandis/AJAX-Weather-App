@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<head>
+  <title>Local Weather</title>
+
+  <link rel="stylesheet" href="static/weather.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+</head>
+<body>
+
+<div class="main-container">
+
+  <div class="weather-card">
+    <div class="information center">
+      <div class="location-info">
+        <p id="location"></p>
+      </div>
+
+      <div class="picture">
+        <img src="" alt="" id="weather-pic">
+      </div>
+
+      <div class="temperature-info">
+        <p id="numeric-temp"></p>
+        <p id="weather-description"></p>
+        <p id="last-updated"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+var apiKey = '224cda3d36240ea7aa8e98b855204d8c'
+var url = 'http://api.openweathermap.org/data/2.5/weather?lat=40.03957&lon=-75.67316&units=imperial&appid=' + apiKey;
+var request = new XMLHttpRequest();
+
+request.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      updateInformation();
+    }
+};
+request.open("GET", url, true);
+request.send();
+
+function getRequest() {
+  request.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        updateInformation();
+      }
+  };
+  request.open("GET", url, true);
+  request.send();
+}
+
+var sum = 0;
+for (var i = 1; i < 7; i++) {
+
+  console.log(i + " equals " + sum);
+  sum += (Math.pow(-1, i + 1))/(Math.pow(i , 6))
+}
+console.log(sum);
+
+function updateInformation() {
+  var response = JSON.parse(request.responseText);
+
+  var temperature = response.main.temp;
+  var mainDescription = response.weather[0]['main'];
+  var subDescription = response.weather[0]['description'];
+  var location = response.name;
+
+  var sunset = response.sys.sunset;
+
+  var picture = document.getElementById('weather-pic');
+  document.getElementById('numeric-temp').innerHTML = temperature + '°';
+  document.getElementById('weather-description').innerHTML = mainDescription + " - " + subDescription;
+  var d = new Date();
+
+  var hours = d.getHours();
+  var minutes = d.getMinutes();
+
+  var lat;
+  var long;
+
+
+
+  // function getLocation() {
+  //     if (navigator.geolocation) {
+  //         navigator.geolocation.getCurrentPosition(showPosition);
+  //     } else {
+  //         //x.innerHTML = "Geolocation is not supported by this browser.";
+  //     }
+  // }
+  //
+  // function showPosition(position) {
+  //     lat = position.coords.latitude;
+  //     long = position.coords.longitude;
+  // }
+  //
+  // console.log(getLocation());
+
+  if (minutes < 10) {
+    minutes = '0' + minutes;
+  }
+
+  if (hours > 12) {
+    hours = hours % 12;
+  }
+  document.getElementById('last-updated').innerHTML = 'Last updated ' + hours + ':' + minutes;
+  document.getElementById('location').innerHTML = location;
+
+  if (mainDescription == 'Rain') {
+    picture.src = 'static/rain.svg';
+  }
+  if (mainDescription == 'Clear') {
+    picture.src = 'static/sun.svg';
+
+
+  }
+}
+
+setInterval(getRequest, 10000);
+
+</script>
+</body>
+</html>
